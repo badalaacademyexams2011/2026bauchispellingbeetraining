@@ -3,69 +3,203 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spelling Bee Competition</title>
+    <title>2026 Bauchi Spelling Bee Training</title>
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#4f46e5">
+    <meta name="theme-color" content="#059669">
     <style>
-        :root { --primary: #4f46e5; --bg: #f8fafc; --card: #ffffff; --text: #1e293b; }
-        body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-        .container { background: var(--card); padding: 30px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); width: 100%; max-width: 500px; box-sizing: border-box; text-align: center; }
-        h1 { color: var(--primary); margin-top: 0; font-size: 1.75rem; }
-        button { background: var(--primary); color: white; border: none; padding: 12px 20px; font-size: 1rem; border-radius: 8px; cursor: pointer; width: 100%; margin-top: 15px; font-weight: 600; transition: opacity 0.2s; }
-        button:hover { opacity: 0.9; }
-        input, select { width: 100%; padding: 10px; margin-top: 10px; margin-bottom: 20px; border: 1px solid #cbd5e1; border-radius: 8px; box-sizing: border-box; font-size: 1rem; }
-        label { display: block; text-align: left; font-weight: 500; font-size: 0.9rem; color: #475569; }
+        :root {
+            --primary: #059669;
+            --primary-hover: #047857;
+            --accent: #10b981;
+            --bg-gradient: linear-gradient(135deg, #064e3b 0%, #022c22 100%);
+            --glass-bg: rgba(255, 255, 255, 0.92);
+            --glass-border: rgba(255, 255, 255, 0.3);
+            --text-dark: #0f172a;
+            --text-muted: #475569;
+        }
+
+        * {
+            box-sizing: border-box;
+            transition: all 0.25s ease;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--bg-gradient);
+            color: var(--text-dark);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            padding: 35px;
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+            width: 100%;
+            max-width: 480px;
+            text-align: center;
+        }
+
+        .logo-header {
+            margin-bottom: 20px;
+        }
+
+        .app-logo {
+            max-width: 130px;
+            height: auto;
+            object-fit: contain;
+            margin-bottom: 8px;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
+        }
+
+        h1 {
+            color: var(--primary);
+            margin: 5px 0 8px 0;
+            font-size: 1.8rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        p.subtitle {
+            color: var(--text-muted);
+            font-size: 0.92rem;
+            margin-top: 0;
+            margin-bottom: 25px;
+        }
+
+        .form-group {
+            text-align: left;
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 13px 16px;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 12px;
+            font-size: 1rem;
+            background: rgba(255, 255, 255, 0.9);
+            color: var(--text-dark);
+            outline: none;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(5, 150, 105, 0.15);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            color: white;
+            border: none;
+            padding: 14px 20px;
+            font-size: 1.05rem;
+            border-radius: 12px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+            box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(5, 150, 105, 0.4);
+        }
+
         .hidden { display: none !important; }
-        .score-box { font-size: 1.5rem; font-weight: bold; color: var(--primary); margin: 20px 0; }
+
+        .score-box {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(5, 150, 105, 0.08);
+            border-radius: 12px;
+        }
     </style>
 </head>
 <body>
 
-<div class="container">
+<div class="glass-card">
+    <!-- Header Logo & Title -->
+    <div class="logo-header">
+        <img src="icon.png" alt="Badala-BSB Logo" class="app-logo" onerror="this.style.display='none'">
+        <h1>Spelling Bee</h1>
+        <p class="subtitle">2026 Bauchi Spelling Bee Training</p>
+    </div>
+
     <!-- Screen 1: Registration & Category Selection -->
     <div id="setup-screen">
-        <h1>Spelling Bee</h1>
-        <p>Enter your details and select your category to begin.</p>
-        
-        <label for="student-name">Full Name</label>
-        <input type="text" id="student-name" placeholder="e.g. John Doe">
+        <div class="form-group">
+            <label for="student-name">Full Name</label>
+            <input type="text" id="student-name" placeholder="e.g. Ayinde Fuad">
+        </div>
 
-        <label for="student-class">Class / Arm</label>
-        <input type="text" id="student-class" placeholder="e.g. JSS 2B">
+        <div class="form-group">
+            <label for="student-class">Class / Arm</label>
+            <input type="text" id="student-class" placeholder="e.g. JSS 2B">
+        </div>
 
-        <label for="category-select">Category</label>
-        <select id="category-select">
-            <option value="Primary">Primary</option>
-            <option value="Junior Secondary">Junior Secondary</option>
-            <option value="Senior Secondary">Senior Secondary</option>
-        </select>
+        <div class="form-group">
+            <label for="category-select">Category</label>
+            <select id="category-select">
+                <option value="Primary">Primary</option>
+                <option value="Junior Secondary">Junior Secondary</option>
+                <option value="Senior Secondary">Senior Secondary</option>
+            </select>
+        </div>
 
-        <label for="round-select">Select Round</label>
-        <select id="round-select">
-            <option value="1">Round 1: Standard Spelling</option>
-            <option value="2">Round 2: Definition Spelling</option>
-        </select>
+        <div class="form-group">
+            <label for="round-select">Select Round</label>
+            <select id="round-select">
+                <option value="1">Round 1: Standard Spelling</option>
+                <option value="2">Round 2: Definition Spelling</option>
+            </select>
+        </div>
 
-        <button onclick="startQuiz()">Start Competition</button>
+        <button class="btn-primary" onclick="startQuiz()">Start Competition</button>
     </div>
 
     <!-- Screen 2: Quiz Gameplay -->
     <div id="quiz-screen" class="hidden">
-        <h2 id="round-title">Round</h2>
-        <p id="progress-indicator" style="color: #64748b; font-size: 0.9rem;"></p>
+        <h2 id="round-title" style="color: var(--primary); margin-top: 0;">Round</h2>
+        <p id="progress-indicator" style="color: var(--text-muted); font-weight: 600; font-size: 0.9rem;"></p>
         
         <div id="question-container" style="margin: 25px 0; text-align: left;"></div>
 
-        <input type="text" id="user-answer" placeholder="Type your spelling here..." autocomplete="off">
-        <button onclick="submitAnswer()">Submit Answer</button>
+        <div class="form-group">
+            <input type="text" id="user-answer" placeholder="Type your spelling here..." autocomplete="off">
+        </div>
+        <button class="btn-primary" onclick="submitAnswer()">Submit Answer</button>
     </div>
 
     <!-- Screen 3: Results Screen -->
     <div id="result-screen" class="hidden">
-        <h1>Competition Complete!</h1>
-        <p>Great job, <span id="res-name"></span>!</p>
+        <h1 style="color: var(--primary);">Competition Complete!</h1>
+        <p class="subtitle">Great job, <strong id="res-name" style="color: var(--text-dark);"></strong>!</p>
         <div class="score-box" id="final-score-text">Score: 0 / 0</div>
-        <button onclick="location.reload()">Finish & Exit</button>
+        <button class="btn-primary" onclick="location.reload()">Finish & Exit</button>
     </div>
 </div>
 
@@ -94,8 +228,8 @@
         }
 
         const action = state.round === "1" ? "getRound1" : "getRound2";
-        
-        document.querySelector(".container button").innerText = "Loading words...";
+        const btn = document.querySelector("#setup-screen .btn-primary");
+        btn.innerText = "Loading words...";
 
         try {
             const response = await fetch(`${SCRIPT_URL}?action=${action}&category=${encodeURIComponent(state.category)}`);
@@ -109,12 +243,12 @@
                 loadQuestion();
             } else {
                 alert("No words found for this category yet. Please check your Google Sheet.");
-                document.querySelector(".container button").innerText = "Start Competition";
+                btn.innerText = "Start Competition";
             }
         } catch (err) {
             console.error(err);
-            alert("Failed to connect to the database. Check your internet or Script URL.");
-            document.querySelector(".container button").innerText = "Start Competition";
+            alert("Failed to connect to database. Please check your internet connection.");
+            btn.innerText = "Start Competition";
         }
     }
 
@@ -132,37 +266,20 @@
         document.getElementById("user-answer").value = "";
 
         if (state.round === "1") {
-            // Round 1: Listen to audio / read context sentence
             qContainer.innerHTML = `
-                <p><strong>Listen to pronunciation or use context:</strong></p>
-                <p style="background: #f1f5f9; padding: 10px; border-radius: 6px;"><em>${currentWordObj["Audio URL / Sentence Context"] || "No sentence context provided."}</em></p>
-                <button style="background: #0ea5e9; margin-top: 5px;" onclick="speakWord('${currentWordObj["Word"]}')">🔊 Hear Pronunciation</button>
+                <p><strong>Context / Usage:</strong></p>
+                <p style="background: rgba(5, 150, 105, 0.08); padding: 12px; border-radius: 10px; font-style: italic; border-left: 4px solid var(--primary);">
+                    "${currentWordObj["Audio URL / Sentence Context"] || "No sentence context provided."}"
+                </p>
+                <button class="btn-primary" style="background: #0284c7; margin-top: 8px;" onclick="speakWord('${currentWordObj["Word"]}')">🔊 Hear Pronunciation</button>
             `;
-            // Automatically speak it on load
             speakWord(currentWordObj["Word"]);
         } else {
-            // Round 2: Definition matching
-            const target = currentWordObj["Target Word"];
-            const choices = [
-                currentWordObj["Correct Definition"],
-                currentWordObj["Distractor Definition 1"],
-                currentWordObj["Distractor Definition 2"]
-            ].filter(Boolean);
-            
-            // Shuffle choices randomly
-            choices.sort(() => Math.random() - 0.5);
-
-            qContainer.innerHTML = `
-                <p><strong>Identify the word for this definition:</strong></p>
-                <p style="background: #f1f5f9; padding: 10px; border-radius: 6px; font-weight: 500;" id="active-def"></p>
-                <label>Select or type the correct spelling:</label>
-            `;
-            
-            // We'll show definitions one by one or present a multiple choice option. Let's make it display choices as buttons or text input. 
-            // For pure spelling, let's display the correct definition and let them type the target word:
             qContainer.innerHTML = `
                 <p><strong>Definition:</strong></p>
-                <p style="background: #f1f5f9; padding: 12px; border-radius: 6px; font-size: 1.05rem;">"${currentWordObj["Correct Definition"]}"</p>
+                <p style="background: rgba(5, 150, 105, 0.08); padding: 14px; border-radius: 10px; font-size: 1.05rem; font-weight: 500; border-left: 4px solid var(--primary);">
+                    "${currentWordObj["Correct Definition"]}"
+                </p>
             `;
         }
     }
@@ -170,7 +287,7 @@
     function speakWord(word) {
         if ('speechSynthesis' in window) {
             const utterance = new SpeechSynthesisUtterance(word);
-            utterance.rate = 0.9; // Slightly slower for clarity
+            utterance.rate = 0.85;
             window.speechSynthesis.speak(utterance);
         }
     }
@@ -199,7 +316,6 @@
         document.getElementById("res-name").innerText = state.name;
         document.getElementById("final-score-text").innerText = `Score: ${state.score} / ${state.words.length}`;
 
-        // Send score back to Google Sheets dashboard
         try {
             await fetch(SCRIPT_URL, {
                 method: "POST",
