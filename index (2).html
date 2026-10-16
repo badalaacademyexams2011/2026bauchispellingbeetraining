@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spelling Bee Competition</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#4f46e5">
+    <style>
+        :root { --primary: #4f46e5; --bg: #f8fafc; --card: #ffffff; --text: #1e293b; }
+        body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .container { background: var(--card); padding: 30px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); width: 100%; max-width: 500px; box-sizing: border-box; text-align: center; }
+        h1 { color: var(--primary); margin-top: 0; font-size: 1.75rem; }
+        button { background: var(--primary); color: white; border: none; padding: 12px 20px; font-size: 1rem; border-radius: 8px; cursor: pointer; width: 100%; margin-top: 15px; font-weight: 600; transition: opacity 0.2s; }
+        button:hover { opacity: 0.9; }
+        input, select { width: 100%; padding: 10px; margin-top: 10px; margin-bottom: 20px; border: 1px solid #cbd5e1; border-radius: 8px; box-sizing: border-box; font-size: 1rem; }
+        label { display: block; text-align: left; font-weight: 500; font-size: 0.9rem; color: #475569; }
+        .hidden { display: none !important; }
+        .score-box { font-size: 1.5rem; font-weight: bold; color: var(--primary); margin: 20px 0; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- Screen 1: Registration & Category Selection -->
+    <div id="setup-screen">
+        <h1>Spelling Bee</h1>
+        <p>Enter your details and select your category to begin.</p>
+        
+        <label for="student-name">Full Name</label>
+        <input type="text" id="student-name" placeholder="e.g. John Doe">
+
+        <label for="student-class">Class / Arm</label>
+        <input type="text" id="student-class" placeholder="e.g. JSS 2B">
+
+        <label for="category-select">Category</label>
+        <select id="category-select">
+            <option value="Primary">Primary</option>
+            <option value="Junior Secondary">Junior Secondary</option>
+            <option value="Senior Secondary">Senior Secondary</option>
+        </select>
+
+        <label for="round-select">Select Round</label>
+        <select id="round-select">
+            <option value="1">Round 1: Standard Spelling</option>
+            <option value="2">Round 2: Definition Spelling</option>
+        </select>
+
+        <button onclick="startQuiz()">Start Competition</button>
+    </div>
+
+    <!-- Screen 2: Quiz Gameplay -->
+    <div id="quiz-screen" class="hidden">
+        <h2 id="round-title">Round</h2>
+        <p id="progress-indicator" style="color: #64748b; font-size: 0.9rem;"></p>
+        
+        <div id="question-container" style="margin: 25px 0; text-align: left;"></div>
+
+        <input type="text" id="user-answer" placeholder="Type your spelling here..." autocomplete="off">
+        <button onclick="submitAnswer()">Submit Answer</button>
+    </div>
+
+    <!-- Screen 3: Results Screen -->
+    <div id="result-screen" class="hidden">
+        <h1>Competition Complete!</h1>
+        <p>Great job, <span id="res-name"></span>!</p>
+        <div class="score-box" id="final-score-text">Score: 0 / 0</div>
+        <button onclick="location.reload()">Finish & Exit</button>
+    </div>
+</div>
+
+<script>
+    const SCRIPT_URL = "YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL";
+    
+    let state = {
+        name: "",
+        classArm: "",
+        category: "",
+        round: "",
+        words: [],
+        currentIndex: 0,
+        score: 0
+    };
+
+    async function startQuiz() {
+        state.name = document.getElementById("student-name").value.trim();
+        state.classArm = document.getElementById("student-class").value.trim();
+        state.category = document.getElementById("category-select").value;
+        state.round = document.getElementById("round-select").value;
+
+        if (!state.name || !state.classArm) {
+            alert("Please enter your name and class.");
+            return;
+        }
+
+        const action = state.round === "1" ? "getRound1" : "getRound2";
+        
+        document.querySelector(".container button").innerText = "Loading words...";
+
+        try {
+            const response = await fetch(`${SCRIPT_URL}?action=${action}&category=${encodeURIComponent(state.category)}`);
+            const json = await response.json();
+            
+            if (json.status === "success" && json.data.length > 0) {
+                state.words = json.data;
+                document.getElementById("setup-screen").classList.add("hidden");
+                document.getElementById("quiz-screen").classList.remove("hidden");
+                document.getElementById("round-title").innerText = `Round ${state.round} (${state.category})`;
+                loadQuestion();
+            } else {
+                alert("No words found for this category yet. Please check your Google Sheet.");
+                document.querySelector(".container button").innerText = "Start Competition";
+            }
+        } catch (err) {
+            console.error(err);
+            alert("Failed to connect to the database. Check your internet or Script URL.");
+            document.querySelector(".container button").innerText = "Start Competition";
+        }
+    }
+
+    function loadQuestion() {
+        if (state.currentIndex >= state.words.length) {
+            finishQuiz();
+            return;
+        }
+
+        document.getElementById("progress-indicator").innerText = `Question ${state.currentIndex + 1} of ${state.words.length}`;
+        const qContainer = document.getElementById("question-container");
+        const currentWordObj = state.words[state.currentIndex];
+        
+        qContainer.innerHTML = "";
+        document.getElementById("user-answer").value = "";
+
+        if (state.round === "1") {
+            // Round 1: Listen to audio / read context sentence
+            qContainer.innerHTML = `
+                <p><strong>Listen to pronunciation or use context:</strong></p>
+                <p style="background: #f1f5f9; padding: 10px; border-radius: 6px;"><em>${currentWordObj["Audio URL / Sentence Context"] || "No sentence context provided."}</em></p>
+                <button style="background: #0ea5e9; margin-top: 5px;" onclick="speakWord('${currentWordObj["Word"]}')">🔊 Hear Pronunciation</button>
+            `;
+            // Automatically speak it on load
+            speakWord(currentWordObj["Word"]);
+        } else {
+            // Round 2: Definition matching
+            const target = currentWordObj["Target Word"];
+            const choices = [
+                currentWordObj["Correct Definition"],
+                currentWordObj["Distractor Definition 1"],
+                currentWordObj["Distractor Definition 2"]
+            ].filter(Boolean);
+            
+            // Shuffle choices randomly
+            choices.sort(() => Math.random() - 0.5);
+
+            qContainer.innerHTML = `
+                <p><strong>Identify the word for this definition:</strong></p>
+                <p style="background: #f1f5f9; padding: 10px; border-radius: 6px; font-weight: 500;" id="active-def"></p>
+                <label>Select or type the correct spelling:</label>
+            `;
+            
+            // We'll show definitions one by one or present a multiple choice option. Let's make it display choices as buttons or text input. 
+            // For pure spelling, let's display the correct definition and let them type the target word:
+            qContainer.innerHTML = `
+                <p><strong>Definition:</strong></p>
+                <p style="background: #f1f5f9; padding: 12px; border-radius: 6px; font-size: 1.05rem;">"${currentWordObj["Correct Definition"]}"</p>
+            `;
+        }
+    }
+
+    function speakWord(word) {
+        if ('speechSynthesis' in window) {
+            const utterance = new SpeechSynthesisUtterance(word);
+            utterance.rate = 0.9; // Slightly slower for clarity
+            window.speechSynthesis.speak(utterance);
+        }
+    }
+
+    async function submitAnswer() {
+        const userAnswer = document.getElementById("user-answer").value.trim().toLowerCase();
+        const currentWordObj = state.words[state.currentIndex];
+        const correctWord = (state.round === "1" ? currentWordObj["Word"] : currentWordObj["Target Word"]).trim().toLowerCase();
+
+        if (!userAnswer) {
+            alert("Please type an answer.");
+            return;
+        }
+
+        if (userAnswer === correctWord) {
+            state.score++;
+        }
+
+        state.currentIndex++;
+        loadQuestion();
+    }
+
+    async function finishQuiz() {
+        document.getElementById("quiz-screen").classList.add("hidden");
+        document.getElementById("result-screen").classList.remove("hidden");
+        document.getElementById("res-name").innerText = state.name;
+        document.getElementById("final-score-text").innerText = `Score: ${state.score} / ${state.words.length}`;
+
+        // Send score back to Google Sheets dashboard
+        try {
+            await fetch(SCRIPT_URL, {
+                method: "POST",
+                mode: "no-cors",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    studentName: state.name,
+                    studentClass: state.classArm,
+                    category: state.category,
+                    round: `Round ${state.round}`,
+                    score: state.score,
+                    total: state.words.length
+                })
+            });
+        } catch (err) {
+            console.error("Error saving score:", err);
+        }
+    }
+</script>
+</body>
+</html>
