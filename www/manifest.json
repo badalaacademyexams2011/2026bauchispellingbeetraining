@@ -1,0 +1,18 @@
+{
+  "name": "Bauchi Spelling Bee Training App",
+  "short_name": "Bauchi Bee",
+  "description": "Official training portal for the Bauchi State Spelling Bee competition featuring written and oral simulation modules.",
+  "start_url": "index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#121212",
+  "theme_color": "#1b5e20",
+  "icons": [
+    {
+      "src": "icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
