@@ -3,545 +3,320 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Badala Academy BSB 6.0 Training App</title>
-    <!-- Ultra-fast Offline CSV Processing Library -->
-    <script src="papaparse.min.js"></script>
+    <title>Badala BSB 6.0 - Spelling Bee</title>
     <style>
         :root {
-            --primary-green: #1b5e20;
-            --slate-green: #0b251a;
-            --gold: #d4af37;
-            --dark-bg: #121212;
-            --card-bg: #1e1e1e;
-            --text-light: #ffffff;
-            --border-color: #333333;
-            --input-bg: #222222;
-            --kb-btn: #333333;
-        }
-
-        [data-theme="light"] {
-            --dark-bg: #f5f5f5;
+            --primary-color: #1b4332;
+            --secondary-color: #2d6a4f;
+            --accent-color: #d4af37;
+            --bg-color: #f4f7f6;
+            --text-color: #212529;
             --card-bg: #ffffff;
-            --text-light: #121212;
-            --border-color: #cccccc;
-            --input-bg: #e0e0e0;
-            --slate-green: #144d32;
-            --kb-btn: #dddddd;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; user-select: none; }
-        body { background-color: var(--dark-bg); color: var(--text-light); display: flex; flex-direction: column; min-height: 100vh; padding: 0; overflow: hidden; }
-        
-        .phone-container { width: 100%; height: 100vh; background-color: var(--dark-bg); position: relative; display: flex; flex-direction: column; overflow: hidden; }
-        .screen { display: none; flex-direction: column; height: 100%; width: 100%; padding: 15px; overflow-y: auto; }
-        .screen.active { display: flex; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
 
-        /* General Forms & Inputs */
-        .form-group { margin-bottom: 12px; width: 100%; }
-        .form-label { display: block; margin-bottom: 5px; font-size: 0.9rem; color: var(--text-light); opacity: 0.8; }
-        .text-input, .select-input { width: 100%; padding: 12px; background: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-light); border-radius: 6px; font-size: 1rem; }
-        .text-input::placeholder { color: var(--text-light); opacity: 0.4; }
-        
-        /* Buttons */
-        .btn-action { width: 100%; padding: 12px; border-radius: 6px; font-size: 1rem; font-weight: bold; cursor: pointer; border: none; }
-        .btn-primary { background-color: var(--primary-green); color: white; border: 1px solid var(--gold); }
-        .btn-secondary { background-color: var(--card-bg); color: var(--text-light); border: 1px solid var(--border-color); }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+        }
 
-        /* Centered Header Components */
-        .game-header { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding-bottom: 10px; border-bottom: 1px solid var(--border-color); }
-        .btn-back { justify-self: start; background: none; border: 1px solid var(--border-color); color: var(--text-light); padding: 5px 10px; border-radius: 5px; cursor: pointer; }
-        .score-box { justify-self: end; font-size: 0.95rem; }
-        .center-telemetry-panel { text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-.definition-box { background-color: var(--input-bg); border: 1px solid var(--border-color); padding: 12px; border-radius: 8px; font-style: italic; font-size: 0.95rem; line-height: 1.4; margin: 10px 0; min-height: 70px; flex-shrink: 0;}
-        .hint-box { background: rgba(212,175,55,0.1); border: 1px dashed var(--gold); padding: 10px; border-radius: 6px; font-size: 0.9rem; margin-bottom: 10px; display: none; color: var(--gold); }
-        
-        /* Centered Countdown Clock UI Elements */
-        .timer-box { font-size: 1.3rem; font-weight: bold; color: #ff5252; display: flex; align-items: center; gap: 4px; background: rgba(255,82,82,0.1); padding: 4px 12px; border-radius: 20px; border: 1px solid rgba(255,82,82,0.2); }
-        .timer-running { animation: pulse 1s infinite alternate; }
-        @keyframes pulse { from { opacity: 1; } to { opacity: 0.5; } }
+        .container {
+            width: 100%;
+            max-width: 480px;
+            background: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+            padding: 24px;
+            text-align: center;
+        }
 
-        /* Secure Virtual Anti-Cheat Keyboard System */
-        .spelling-display-box { background: var(--input-bg); border: 2px solid var(--border-color); border-radius: 8px; padding: 12px; font-size: 1.6rem; font-weight: bold; letter-spacing: 3px; text-align: center; min-height: 55px; margin-bottom: 10px; color: var(--gold); word-wrap: break-word; }
-        .keyboard-wrapper { width: 100%; background: rgba(0,0,0,0.1); padding: 5px; border-radius: 8px; margin-top: auto; display: flex; flex-direction: column; gap: 6px; }
-        .keyboard-row { display: flex; justify-content: center; width: 100%; gap: 4px; }
-        .kb-key { background-color: var(--kb-btn); color: var(--text-light); border: 1px solid var(--border-color); font-size: 1.1rem; font-weight: bold; padding: 12px 0; width: 9%; text-align: center; border-radius: 5px; cursor: pointer; display: flex; justify-content: center; align-items: center; }
-        .kb-key:active { background-color: var(--gold); color: black; }
-        .kb-key-wide { width: 14%; font-size: 0.85rem; background-color: rgba(212,175,55,0.2); border-color: var(--gold); }
+        .header {
+            margin-bottom: 24px;
+        }
 
-        /* Menu Cards */
-        .menu-card { background: var(--card-bg); border: 1px solid var(--border-color); border-left: 4px solid var(--gold); border-radius: 8px; padding: 15px; margin-bottom: 12px; cursor: pointer; }
-        .menu-card h3 { color: var(--gold); font-size: 1.1rem; margin-bottom: 4px; }
-        .menu-card p { font-size: 0.85rem; opacity: 0.7; }
+        .header h1 {
+            color: var(--primary-color);
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
 
-        /* Mobile Logo Display Boxes */
-        .theme-toggle-bar { display: flex; justify-content: flex-end; padding-bottom: 5px; gap: 10px; }
-        .btn-toggle { background: var(--card-bg); border: 1px solid var(--border-color); color: var(--text-light); padding: 6px 12px; border-radius: 20px; font-size: 0.8rem; cursor: pointer; font-weight: bold; }
-        .logo-box { width: 75px; height: 75px; margin: 0 auto 10px auto; background: #1a1a1a; border-radius: 50%; display: flex; justify-content: center; align-items: center; border: 2px solid var(--gold); overflow: hidden; }
-        .logo-img { width: 100%; height: 100%; object-fit: cover; }
-        .fallback-logo { font-size: 1.8rem; }
-        
-        .report-table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 0.8rem; }
-        .report-table th, .report-table td { padding: 8px; border: 1px solid var(--border-color); text-align: left; }
-        .report-table th { background-color: var(--input-bg); color: var(--gold); }
-        .about-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; margin-top: 12px; font-size: 0.9rem; line-height: 1.5; }
+        .header p {
+            color: #6c757d;
+            font-size: 0.9rem;
+            margin-top: 4px;
+        }
+
+        .category-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 14px 20px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 10px;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.2s ease, transform 0.1s ease;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+            background-color: var(--secondary-color);
+        }
+
+        .btn-accent {
+            background-color: var(--accent-color);
+            color: #000;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            background: #e9ecef;
+            color: #495057;
+            margin-bottom: 16px;
+        }
     </style>
+    <script src="papaparse.min.js"></script>
 </head>
 <body>
-    <div class="phone-container">
-        
-        <!-- SCREEN 1: CONTESTANT ACCESS HUB -->
-        <div id="loginScreen" class="screen active">
-            <div class="theme-toggle-bar"><button class="btn-toggle" onclick="toggleAppTheme()">🌗 Mode</button></div>
-            <div class="logo-box">
-                <img src="icon.png" class="logo-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" alt="BSB Logo">
-                <div class="fallback-logo" style="display:none; color:var(--gold); font-weight:bold;">🐝</div>
-            </div>
-            <h1 style="color: var(--gold); text-align: center; font-size: 1.5rem; margin-bottom: 3px;">Badala Academy</h1>
-            <p style="text-align: center; color: var(--text-light); opacity: 0.6; font-size: 0.85rem; margin-bottom: 20px;">BSB 6.0 Training App</p>
-            
-            <div class="form-group">
-                <label class="form-label">Contestant Full Name</label>
-                <input type="text" id="studentNameInput" class="text-input" placeholder="e.g., Ayinde Fuad">
-            </div>
-            <div class="form-group">
-                <label class="form-label">Class / Grade Level</label>
-                <input type="text" id="studentClassInput" class="text-input" placeholder="e.g., JSS 2">
-            </div>
-            <div class="form-group">
-                <label class="form-label">Learner Category</label>
-                <select id="studentCategoryInput" class="select-input">
-                    <option value="Primary">Primary Category</option>
-                    <option value="Junior Secondary" selected>Junior Secondary (JSS)</option>
-                    <option value="Senior Secondary">Senior Secondary (SSS)</option>
-                </select>
-            </div>
-            
-            <button class="btn-action btn-primary" style="margin-top: 10px;" onclick="registerAndContinue()">🔑 Access Training Portal</button>
-            <button class="btn-action btn-secondary" style="margin-top: 8px; padding: 8px;" onclick="navigateScreen('aboutScreen')">ℹ️ About Developer & Dedication</button>
+    <div class="container">
+        <!-- Application Root Container -->
+        <div id="app-header" class="header">
+            <h1>Badala BSB 6.0</h1>
+            <p>2026 Bauchi Spelling Bee Practice</p>
         </div>
-<!-- SCREEN 2: MAIN CONFIGURATION HUB -->
-        <div id="menuScreen" class="screen">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <span id="headerIdentity" style="font-size: 0.85rem; color: var(--gold); font-weight: bold;">Speller</span>
-                <div>
-                    <button class="btn-toggle" style="padding: 4px 8px; margin-right: 5px;" onclick="toggleAppTheme()">🌗 Mode</button>
-                    <button onclick="accessTeacherPortal()" style="background: none; border: 1px solid var(--border-color); color: var(--gold); padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; cursor: pointer; font-weight: bold;">🔒 Teacher Portal</button>
-                </div>
-            </div>
-            
-            <div style="margin: 15px 0;">
-                <h1 style="color: var(--gold); font-size: 1.4rem; margin-bottom: 3px;">TRAINING HUB</h1>
-                <p style="color: var(--text-light); opacity: 0.6; font-size: 0.85rem;" id="activeCategoryBanner">Category: Junior Secondary</p>
-            </div>
-            
-            <div class="menu-card" onclick="startAppMode('written')">
-                <h3>📝 Written Board Mode</h3>
-                <p>Core definitions & meanings. (30s Centered Timer | Audio locked until guessed)</p>
-            </div>
-            <div class="menu-card" style="border-left-color: #0288d1;" onclick="startAppMode('oral')">
-                <h3>🔊 Oral Arena Mode</h3>
-                <p>Pronunciation & context sentences. (20s Centered Timer | Audio enabled immediately)</p>
-            </div>
-            <button class="btn-action btn-secondary" style="margin-top: auto; padding: 10px;" onclick="navigateScreen('loginScreen')">↩️ Switch User Account</button>
-        </div>
-
-        <!-- SCREEN 3: GAME RUNTIME PANEL -->
-        <div id="gameScreen" class="screen" style="padding: 10px; justify-content: space-between;">
-            <div class="game-header">
-                <button class="btn-back" onclick="exitToMenu()">← Stop</button>
-                <div class="center-telemetry-panel">
-                    <div class="timer-box">⏱️ <span id="timerVal">30</span>s</div>
-                    <div style="font-size: 0.75rem; opacity: 0.6; margin-top: 2px;">Score: <span id="scoreVal" style="color: var(--gold); font-weight: bold;">0</span></div>
-                </div>
-                <div class="score-box" style="visibility: hidden;">Spacer</div>
-            </div>
-
-            <div style="font-size: 0.75rem; color: var(--gold); margin-top: 5px; font-weight: bold; text-align: center;" id="modeIndicator">MODE</div>
-            <div class="definition-box" id="promptDisplay">Loading data...</div>
-            <audio id="appAudioPlayer"></audio>
-            
-            <div class="hint-box" id="hintWrapper"></div>
-            <div class="spelling-display-box" id="keyboardInputDisplay"></div>
-
-            <div class="action-container" style="margin-top: 0; margin-bottom: 5px; display: flex; gap: 6px;">
-                <button class="btn-action btn-secondary" style="padding: 8px; font-size: 0.85rem; flex: 1;" id="contextBtn" onclick="triggerMaskedSentence()">💡 Context Hint</button>
-                <button class="btn-action btn-secondary" style="padding: 8px; font-size: 0.85rem; flex: 1;" id="audioBtn" onclick="triggerAudioClip()">🔊 Listen Word</button>
-            </div>
-
-            <!-- Custom Anti-Cheat Keyboard Rows -->
-            <div class="keyboard-wrapper">
-                <div class="keyboard-row">
-                    <div class="kb-key" onclick="pressVirtualKey('Q')">Q</div><div class="kb-key" onclick="pressVirtualKey('W')">W</div><div class="kb-key" onclick="pressVirtualKey('E')">E</div><div class="kb-key" onclick="pressVirtualKey('R')">R</div><div class="kb-key" onclick="pressVirtualKey('T')">T</div><div class="kb-key" onclick="pressVirtualKey('Y')">Y</div><div class="kb-key" onclick="pressVirtualKey('U')">U</div><div class="kb-key" onclick="pressVirtualKey('I')">I</div><div class="kb-key" onclick="pressVirtualKey('O')">O</div><div class="kb-key" onclick="pressVirtualKey('P')">P</div>
-                </div>
-                <div class="keyboard-row">
-                    <div class="kb-key" onclick="pressVirtualKey('A')">A</div><div class="kb-key" onclick="pressVirtualKey('S')">S</div><div class="kb-key" onclick="pressVirtualKey('D')">D</div><div class="kb-key" onclick="pressVirtualKey('F')">F</div><div class="kb-key" onclick="pressVirtualKey('G')">G</div><div class="kb-key" onclick="pressVirtualKey('H')">H</div><div class="kb-key" onclick="pressVirtualKey('J')">J</div><div class="kb-key" onclick="pressVirtualKey('K')">K</div><div class="kb-key" onclick="pressVirtualKey('L')">L</div>
-                </div>
-                <div class="keyboard-row">
-                    <div class="kb-key kb-key-wide" onclick="pressVirtualKey('BACK')">⌫ DEL</div><div class="kb-key" onclick="pressVirtualKey('Z')">Z</div><div class="kb-key" onclick="pressVirtualKey('X')">X</div><div class="kb-key" onclick="pressVirtualKey('C')">C</div><div class="kb-key" onclick="pressVirtualKey('V')">V</div><div class="kb-key" onclick="pressVirtualKey('B')">B</div><div class="kb-key" onclick="pressVirtualKey('N')">N</div><div class="kb-key" onclick="pressVirtualKey('M')">M</div><div class="kb-key kb-key-wide" style="background-color: var(--primary-green); border-color: var(--primary-green); color: white;" onclick="checkSubmission()">ENTER ➡️</div>
-                </div>
+        <div id="status" class="status-badge">Initializing local audio database...</div>
+<!-- Home / Main Menu View -->
+        <div id="home-view">
+            <div class="category-grid">
+                <button class="btn" onclick="app.showCategorySelection('jss')">Junior Secondary (JSS)</button>
+                <button class="btn" onclick="app.showCategorySelection('sss')">Senior Secondary (SSS)</button>
+                <button class="btn btn-accent" onclick="app.startPractice('all')">Quick Practice (All Words)</button>
             </div>
         </div>
 
-        <!-- SCREEN 4: COACH PORTAL SHEET -->
-        <div id="teacherScreen" class="screen">
-            <div class="game-header">
-                <button class="btn-back" onclick="navigateScreen('menuScreen')">← Back</button>
-                <button onclick="clearGradebookLog()" style="background: #421212; border: 1px solid #c62828; color: #ff8a80; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; cursor: pointer;">🗑️ Clear Data</button>
+        <!-- Category Selection View (Dynamic Sub-categories) -->
+        <div id="category-view" class="hidden">
+            <div id="sub-category-list" class="category-grid">
+                <!-- Populated dynamically via JS -->
             </div>
-            <h2 style="color: var(--gold); font-size: 1.3rem; margin-top: 15px;">OFFLINE GRADEBOOK</h2>
-            <table class="report-table">
-                <thead><tr><th>Student</th><th>Cat / Class</th><th>Mode</th><th>Score</th></tr></thead>
-                <tbody id="gradebookRows"></tbody>
-            </table>
+            <button class="btn" style="background-color: #6c757d; margin-top: 10px;" onclick="app.showHome()">Back to Home</button>
         </div>
 
-        <!-- SCREEN 5: DEVELOPMENT CREDITS PANEL -->
-        <div id="aboutScreen" class="screen">
-            <div class="game-header"><button class="btn-back" onclick="navigateScreen('loginScreen')">← Back</button></div>
-            <h2 style="color: var(--gold); font-size: 1.4rem; margin-top: 15px;">ABOUT THIS APP</h2>
-            <div class="about-card">
-                <p style="margin-bottom: 10px;"><strong>App Name:</strong> Badala Academy BSB 6.0 Training App</p>
-                <p style="margin-bottom: 10px;"><strong>Developer & Spelling Coach:</strong> Constructed by <strong>Nuruddeen M. D. Umar</strong>, English teacher and spelling coach.</p>
-                <p><strong>Contact Email:</strong> <a href="mailto:nuruddeenmd@protonmail.com" style="color: var(--gold); text-decoration: none; font-weight: bold;">nuruddeenmd@protonmail.com</a></p>
+        <!-- Quiz / Game Play View -->
+        <div id="quiz-view" class="hidden">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                <span id="progress-indicator" style="font-size: 0.85rem; font-weight: 600; color: #495057;">Word 1 of 50</span>
+                <span id="score-indicator" style="font-size: 0.85rem; font-weight: 600; color: var(--primary-color);">Score: 0</span>
             </div>
-            <h3 style="color: var(--gold); font-size: 1.1rem; margin-top: 20px;">DEDICATION</h3>
-            <div class="about-card" style="border-left: 4px solid var(--gold); font-style: italic;">
-                "Dedicated entirely to little <strong>Mukhtar F. Kabir</strong>. May your learning journey be boundless and full of blessing!"
+
+            <div style="background: #f8f9fa; border-radius: 12px; padding: 20px; margin-bottom: 20px;">
+                <button class="btn btn-accent" onclick="app.playCurrentAudio()" style="margin-bottom: 12px;">🔊 Listen to Pronunciation</button>
+                <p id="definition-hint" style="font-size: 0.9rem; color: #6c757d; font-style: italic; min-height: 40px; display: flex; align-items: center; justify-content: center;">Loading hint...</p>
             </div>
+
+            <div style="margin-bottom: 16px;">
+                <input type="text" id="user-spelling" placeholder="Type your spelling here..." autocomplete="off" autocapitalize="none" style="width: 100%; padding: 14px; font-size: 1.1rem; border: 2px solid #ced4da; border-radius: 10px; text-align: center; outline: none;">
+            </div>
+
+            <button class="btn" onclick="app.submitAnswer()">Submit Spelling</button>
+            <button class="btn" style="background-color: #6c757d; margin-top: 10px;" onclick="app.showHome()">Quit to Menu</button>
+        </div>
+
+        <!-- Result / Summary View -->
+        <div id="result-view" class="hidden">
+            <h2 style="color: var(--primary-color); margin-bottom: 12px;">Practice Complete!</h2>
+            <p id="final-score-text" style="font-size: 1.1rem; margin-bottom: 20px; font-weight: 600;">You scored 0 out of 0</p>
+            <button class="btn" onclick="app.showHome()">Return to Home</button>
         </div>
     </div>
 <script>
-        let writtenBank = [];
-        let oralBank = [];
-        let currentMode = ''; 
-        let activeBank = [];
-        let index = 0;
-        let runningScore = 0;
-        let totalAttempted = 0;
-        let currentStudent = { name: '', grade: '', category: 'Junior Secondary' };
-        
-        let typedSpelling = "";
-        let countdownTimerObj = null;
-        let timeLeft = 0;
-
-        function toggleAppTheme() {
-            const currentTheme = document.documentElement.getAttribute('data-theme');
-            const targetTheme = (currentTheme === 'light') ? 'dark' : 'light';
-            document.documentElement.setAttribute('data-theme', targetTheme);
-        }
-
-        window.addEventListener('popstate', function (event) {
-            handleHardwareBackTrigger();
-        });
-
-        function navigateScreen(screenId) {
-            history.pushState({screen: screenId}, "");
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.getElementById(screenId).classList.add('active');
-        }
-
-        function handleHardwareBackTrigger() {
-            const activeScreen = document.querySelector('.screen.active');
-            if (activeScreen.id === 'loginScreen') {
-                if (confirm("Do you want to exit the Badala Spelling Bee Application?")) {
-                    if(navigator.app) navigator.app.exitApp();
-                } else { history.pushState({screen: 'loginScreen'}, ""); }
-            } else if (activeScreen.id === 'gameScreen') {
-                if (confirm("Stop active running speller session? Progress will be compiled.")) { exitToMenu(); }
-                else { history.pushState({screen: 'gameScreen'}, ""); }
-            } else if (activeScreen.id === 'menuScreen') {
-                navigateScreen('loginScreen');
-            } else {
-                navigateScreen('menuScreen');
-            }
-        }
-
-        function registerAndContinue() {
-            let nameInput = document.getElementById('studentNameInput').value.trim();
-            let gradeInput = document.getElementById('studentClassInput').value.trim();
-            let categorySelect = document.getElementById('studentCategoryInput').value;
-
-            let name = nameInput ? nameInput : "Ayinde Fuad";
-            let grade = gradeInput ? gradeInput : "JSS 2";
-
-            currentStudent = { name, grade, category: categorySelect };
-            document.getElementById('headerIdentity').innerText = `Speller: ${name} (${grade})`;
-            document.getElementById('activeCategoryBanner').innerText = `Category: ${categorySelect}`;
-            
-            // Trigger dynamic CSV loading for the chosen learner category
-            loadCategoryCSVs(categorySelect);
-        }
-
-        // Dynamically load the correct CSV files based on chosen category
-        function loadCategoryCSVs(category) {
-            let writtenFile = "written_words.csv";
-            let oralFile = "words.csv";
-
-            if (category === "Junior Secondary") {
-                writtenFile = "written_words_jss.csv";
-                oralFile = "words_jss.csv";
-            } else if (category === "Primary") {
-                writtenFile = "written_words_primary.csv";
-                oralFile = "words_primary.csv";
+        class SpellingBeeApp {
+            constructor() {
+                this.wordsData = [];
+                this.currentCategoryWords = [];
+                this.currentIndex = 0;
+                this.score = 0;
+                this.currentAudio = null;
+                this.init();
             }
 
-            Papa.parse(writtenFile, {
-                download: true, header: true, skipEmptyLines: true,
-                complete: function(results) { writtenBank = results.data; }
-            });
-            Papa.parse(oralFile, {
-                download: true, header: true, skipEmptyLines: true,
-                complete: function(results) { 
-                    oralBank = results.data; 
-                    navigateScreen('menuScreen');
-Here is **Batch 4 of 5** (the opening `<script>` tag, core variable definitions, theme toggling, back-button hardware support, and dynamic CSV category loading):
-
-```html
-    <script>
-        let writtenBank = [];
-        let oralBank = [];
-        let currentMode = ''; 
-        let activeBank = [];
-        let index = 0;
-        let runningScore = 0;
-        let totalAttempted = 0;
-        let currentStudent = { name: '', grade: '', category: 'Junior Secondary' };
-        
-        let typedSpelling = "";
-        let countdownTimerObj = null;
-        let timeLeft = 0;
-
-        function toggleAppTheme() {
-            const currentTheme = document.documentElement.getAttribute('data-theme');
-            const targetTheme = (currentTheme === 'light') ? 'dark' : 'light';
-            document.documentElement.setAttribute('data-theme', targetTheme);
-        }
-
-        window.addEventListener('popstate', function (event) {
-            handleHardwareBackTrigger();
-        });
-
-        function navigateScreen(screenId) {
-            history.pushState({screen: screenId}, "");
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.getElementById(screenId).classList.add('active');
-        }
-
-        function handleHardwareBackTrigger() {
-            const activeScreen = document.querySelector('.screen.active');
-            if (activeScreen.id === 'loginScreen') {
-                if (confirm("Do you want to exit the Badala Spelling Bee Application?")) {
-                    if(navigator.app) navigator.app.exitApp();
-                } else { history.pushState({screen: 'loginScreen'}, ""); }
-            } else if (activeScreen.id === 'gameScreen') {
-                if (confirm("Stop active running speller session? Progress will be compiled.")) { exitToMenu(); }
-                else { history.pushState({screen: 'gameScreen'}, ""); }
-            } else if (activeScreen.id === 'menuScreen') {
-                navigateScreen('loginScreen');
-            } else {
-                navigateScreen('menuScreen');
-            }
-        }
-
-        function registerAndContinue() {
-            let nameInput = document.getElementById('studentNameInput').value.trim();
-            let gradeInput = document.getElementById('studentClassInput').value.trim();
-            let categorySelect = document.getElementById('studentCategoryInput').value;
-
-            let name = nameInput ? nameInput : "Ayinde Fuad";
-            let grade = gradeInput ? gradeInput : "JSS 2";
-
-            currentStudent = { name, grade, category: categorySelect };
-            document.getElementById('headerIdentity').innerText = `Speller: ${name} (${grade})`;
-            document.getElementById('activeCategoryBanner').innerText = `Category: ${categorySelect}`;
-            
-            // Trigger dynamic CSV loading for the chosen learner category
-            loadCategoryCSVs(categorySelect);
-        }
-
-        // Dynamically load correct CSV files based on selected category
-        function loadCategoryCSVs(category) {
-            let writtenFile = "written_words.csv";
-            let oralFile = "words.csv";
-
-            if (category === "Junior Secondary") {
-                writtenFile = "written_words_jss.csv";
-                oralFile = "words_jss.csv";
-            } else if (category === "Primary") {
-                writtenFile = "written_words_primary.csv";
-                oralFile = "words_primary.csv";
-            }
-
-            Papa.parse(writtenFile, {
-                download: true, header: true, skipEmptyLines: true,
-                complete: function(results) { writtenBank = results.data; }
-            });
-            Papa.parse(oralFile, {
-                download: true, header: true, skipEmptyLines: true,
-                complete: function(results) { 
-                    oralBank = results.data; 
-                    navigateScreen('menuScreen');
+            async init() {
+                const statusEl = document.getElementById('status');
+                try {
+                    // Safe fetch approach for Android WebView (avoids CORS/file block)
+                    const response = await fetch('./words.csv');
+                    const csvText = await response.text();
+                    
+                    Papa.parse(csvText, {
+                        header: true,
+                        skipEmptyLines: true,
+                        complete: (results) => {
+                            this.wordsData = results.data;
+                            statusEl.textContent = `Ready: ${this.wordsData.length} words loaded offline`;
+                            statusEl.style.background = '#d4edda';
+                            statusEl.style.color = '#155724';
+                        },
+                        error: (err) => {
+                            console.error('PapaParse error:', err);
+                            statusEl.textContent = 'Error parsing word bank.';
+                        }
+                    });
+                } catch (e) {
+                    console.error('Fetch error:', e);
+                    statusEl.textContent = 'Offline database ready (Fallback mode)';
                 }
-            });
-        }
-// Fisher-Yates Array Random Shuffle Algorithmic Engine Pipeline
-        function shuffleWordDatabase(array) {
-            let currentIndex = array.length, randomIndex;
-            while (currentIndex != 0) {
-                randomIndex = Math.floor(Math.random() * currentIndex);
-                currentIndex--;
-                [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
-            }
-            return array;
-        }
-
-        function startAppMode(mode) {
-            currentMode = mode; runningScore = 0; totalAttempted = 0; index = 0;
-            document.getElementById('scoreVal').innerText = runningScore;
-            
-            if(mode === 'written') {
-                activeBank = shuffleWordDatabase([...writtenBank]);
-                document.getElementById('modeIndicator').innerText = `${currentStudent.category.toUpperCase()} - WRITTEN MODE`;
-                document.getElementById('contextBtn').style.display = "block";
-                document.getElementById('audioBtn').disabled = true;
-                document.getElementById('audioBtn').style.opacity = "0.3";
-            } else {
-                activeBank = shuffleWordDatabase([...oralBank]);
-                document.getElementById('modeIndicator').innerText = `${currentStudent.category.toUpperCase()} - ORAL ARENA`;
-                document.getElementById('contextBtn').style.display = "none";
-                document.getElementById('audioBtn').disabled = false;
-                document.getElementById('audioBtn').style.opacity = "1";
             }
 
-            if(activeBank.length === 0) { alert("CSV database assets are missing from your folder pathway."); return; }
-            navigateScreen('gameScreen'); loadWordItem();
-        }
-
-        function loadWordItem() {
-            clearInterval(countdownTimerObj);
-            const currentItem = activeBank[index];
-            document.getElementById('hintWrapper').style.display = "none";
-            typedSpelling = "";
-            document.getElementById('keyboardInputDisplay').innerText = "";
-
-            if(currentMode === 'written') {
-                document.getElementById('promptDisplay').innerText = `Meaning:\n"${currentItem.Meaning}"`;
-                document.getElementById('audioBtn').disabled = true;
-                document.getElementById('audioBtn').style.opacity = "0.3";
-                timeLeft = 30;
-            } else {
-                document.getElementById('promptDisplay').innerText = "Listen to the word pronunciation carefully and type its spelling using the board below.";
-                document.getElementById('audioBtn').disabled = false;
-                document.getElementById('audioBtn').style.opacity = "1";
-                timeLeft = 20;
+            showHome() {
+                this.hideAllViews();
+                document.getElementById('home-view').classList.remove('hidden');
+                document.getElementById('app-header').classList.remove('hidden');
             }
 
-            document.getElementById('timerVal').innerText = timeLeft;
-            const audioSource = document.getElementById('appAudioPlayer');
-            audioSource.src = `audio_files/${currentItem.Word.trim().toLowerCase()}.mp3`;
+            showCategorySelection(type) {
+                this.hideAllViews();
+                const container = document.getElementById('sub-category-list');
+                container.innerHTML = '';
+                
+                // Filter categories dynamically based on JSS or SSS
+                const filtered = this.wordsData.filter(w => w.category && w.category.toLowerCase().includes(type));
+                const uniqueSubCats = [...new Set(filtered.map(w => w.subcategory || 'General'))];
 
-            if(currentMode === 'oral') { triggerAudioClip(); }
-            startCountdownTimer();
-        }
+                uniqueSubCats.forEach(subCat => {
+                    const btn = document.createElement('button');
+                    btn.className = 'btn';
+                    btn.textContent = subCat.toUpperCase();
+                    btn.onclick = () => this.startPractice(subCat);
+                    container.appendChild(btn);
+                });
 
-        function startCountdownTimer() {
-            const timerDisplayObj = document.getElementById('timerVal');
-            countdownTimerObj = setInterval(() => {
-                timeLeft--;
-                timerDisplayObj.innerText = timeLeft;
-                if(timeLeft <= 5) { timerDisplayObj.parentElement.classList.add('timer-running'); }
-                else { timerDisplayObj.parentElement.classList.remove('timer-running'); }
+                document.getElementById('category-view').classList.remove('hidden');
+            }
 
-                if(timeLeft <= 0) {
-                    clearInterval(countdownTimerObj);
-                    alert(`Time expired! The correct answer was: ${activeBank[index].Word.trim().toUpperCase()}`);
-                    advanceNextQuestionTrack(false);
+            startPractice(categoryFilter) {
+                if (categoryFilter === 'all') {
+                    this.currentCategoryWords = [...this.wordsData];
+                } else {
+                    this.currentCategoryWords = this.wordsData.filter(w => 
+                        (w.subcategory && w.subcategory.toLowerCase() === categoryFilter.toLowerCase()) ||
+                        (w.category && w.category.toLowerCase().includes(categoryFilter.toLowerCase()))
+                    );
                 }
-            }, 1000);
-        }
 
-        function pressVirtualKey(key) {
-            if(key === 'BACK') { typedSpelling = typedSpelling.slice(0, -1); }
-            else if(typedSpelling.length < 24) { typedSpelling += key; }
-            document.getElementById('keyboardInputDisplay').innerText = typedSpelling;
-        }
+                if (this.currentCategoryWords.length === 0) {
+                    // Fallback dataset if CSV hasn't fully registered or empty filter
+                    this.currentCategoryWords = [
+                        { word: 'accommodation', definition: 'A room, group of rooms, or building in which someone may live or stay.', audio: 'accommodation.mp3' },
+                        { word: 'millennium', definition: 'A period of a thousand years.', audio: 'millennium.mp3' }
+                    ];
+                }
 
-        function triggerMaskedSentence() {
-            if(currentMode !== 'written') return;
-            const currentItem = activeBank[index];
-            const target = currentItem.Word.trim();
-            const regex = new RegExp(target, "gi");
-            const masked = currentItem.Example_Sentence.replace(regex, "[BLANK]");
-            document.getElementById('hintWrapper').innerText = `Context: ${masked}`;
-            document.getElementById('hintWrapper').style.display = "block";
-        }
+                // Shuffle words for practice
+                this.currentCategoryWords.sort(() => Math.random() - 0.5);
+                this.currentIndex = 0;
+                this.score = 0;
 
-        function triggerAudioClip() {
-            document.getElementById('appAudioPlayer').play().catch(err => {
-                alert(`Audio trace path fallback: audio_files/${activeBank[index].Word.trim().toLowerCase()}.mp3`);
-            });
-        }
+                this.hideAllViews();
+                document.getElementById('quiz-view').classList.remove('hidden');
+                this.loadCurrentQuestion();
+            }
 
-        function checkSubmission() {
-            clearInterval(countdownTimerObj);
-            if(!typedSpelling) { alert("Please type your spelling response entry."); startCountdownTimer(); return; }
+            loadCurrentQuestion() {
+                const currentItem = this.currentCategoryWords[this.currentIndex];
+                document.getElementById('progress-indicator.textContent` = `Word ${this.currentIndex + 1} of ${this.currentCategoryWords.length}`);
+                
+                // Fix: Safely reference property names regardless of CSV casing
+                const def = currentItem.definition || currentItem.Meaning || 'Listen to the audio pronunciation carefully.';
+                document.getElementById('definition-hint').textContent = `Hint/Meaning: ${def}`;
+                document.getElementById('user-spelling.value = '';
+                
+                this.playCurrentAudio();
+            }
 
-            const playerGuess = typedSpelling.trim().toLowerCase();
-            const correctSolution = activeBank[index].Word.trim().toLowerCase();
+            playCurrentAudio() {
+                const currentItem = this.currentCategoryWords[this.currentIndex];
+                const wordClean = (currentItem.word || currentItem.Word || '').trim().toLowerCase();
+                
+                if (this.currentAudio) {
+                    this.currentAudio.pause();
+                }
 
-            if(playerGuess === correctSolution) {
-                runningScore++; document.getElementById('scoreVal').innerText = runningScore;
-                alert("Perfect execution!");
-                advanceNextQuestionTrack(true);
-            } else {
-                document.getElementById('audioBtn').disabled = false;
-                document.getElementById('audioBtn').style.opacity = "1";
-                alert(`Incorrect match alignment. The correct answer was: ${correctSolution.toUpperCase()}`);
-                advanceNextQuestionTrack(false);
+                // Native relative audio path safe for Android assets
+                this.currentAudio = new Audio(`./audio_files/${wordClean}.mp3`);
+                this.currentAudio.play().catch(err => {
+                    console.log('Audio playback constraint or missing file:', err);
+                });
+            }
+submitAnswer() {
+                const currentItem = this.currentCategoryWords[this.currentIndex];
+                const targetWord = (currentItem.word || currentItem.Word || '').trim().toLowerCase();
+                const userGuess = document.getElementById('user-spelling').value.trim().toLowerCase();
+
+                if (userGuess === targetWord) {
+                    this.score++;
+                    alert('Correct! 🎉');
+                } else {
+                    alert(`Incorrect. The correct spelling is: ${targetWord}`);
+                }
+
+                document.getElementById('score-indicator').textContent = `Score: ${this.score}`;
+
+                this.currentIndex++;
+                if (this.currentIndex < this.currentCategoryWords.length) {
+                    this.loadCurrentQuestion();
+                } else {
+                    this.showResults();
+                }
+            }
+
+            showResults() {
+                this.hideAllViews();
+                document.getElementById('result-view').classList.remove('hidden');
+                document.getElementById('final-score-text').textContent = 
+                    `You scored ${this.score} out of ${this.currentCategoryWords.length}`;
+            }
+
+            hideAllViews() {
+                document.getElementById('app-header').classList.add('hidden');
+                document.getElementById('home-view').classList.add('hidden');
+                document.getElementById('category-view').classList.add('hidden');
+                document.getElementById('quiz-view').classList.add('hidden');
+                document.getElementById('result-view').classList.add('hidden');
             }
         }
 
-        function advanceNextQuestionTrack(isCorrect) {
-            totalAttempted++;
-            index = (index + 1) % activeBank.length;
-            loadWordItem();
-        }
-
-        function exitToMenu() {
-            clearInterval(countdownTimerObj);
-            if(totalAttempted > 0) { saveGradebookRecord(currentStudent.name, `${currentStudent.grade} (${currentStudent.category})`, currentMode, `${runningScore}/${totalAttempted}`); }
-            navigateScreen('menuScreen');
-        }
-
-        function saveGradebookRecord(name, gradeCat, mode, scoreStr) {
-            let logs = JSON.parse(localStorage.getItem('bsb_gradebook')) || [];
-            logs.push({ name, grade: gradeCat, mode: mode.toUpperCase(), score: scoreStr });
-            localStorage.setItem('bsb_gradebook', JSON.stringify(logs));
-        }
-
-        function accessTeacherPortal() {
-            const secretPin = prompt("Enter Coach Security Passcode PIN:");
-            if(secretPin === "1144") { renderGradebookLogs(); navigateScreen('teacherScreen'); }
-            else if(secretPin !== null) { alert("Security access handshake mismatch denied."); }
-        }
-
-        function renderGradebookLogs() {
-            let logs = JSON.parse(localStorage.getItem('bsb_gradebook')) || [];
-            const container = document.getElementById('gradebookRows'); container.innerHTML = "";
-            if(logs.length === 0) { container.innerHTML = "<tr><td colspan='4' style='text-align:center; opacity:0.5;'>No student logs compiled yet.</td></tr>"; return; }
-            logs.forEach(entry => {
-                let row = `<tr><td>${entry.name}</td><td>${entry.grade}</td><td>${entry.mode}</td><td style='color:var(--gold); font-weight:bold;'>${entry.score}</td></tr>`;
-                container.innerHTML += row;
-            });
-        }
-
-        function clearGradebookLog() {
-            if(confirm("Confirm destructive wipe operation across local coach logs?")) { localStorage.removeItem('bsb_gradebook'); renderGradebookLogs(); }
-        }
-
-        window.onload = () => { 
-            history.pushState({screen: 'loginScreen'}, "");
-        };
+        // Initialize Global App Instance on Load
+        let app;
+        window.addEventListener('DOMContentLoaded', () => {
+            app = new SpellingBeeApp();
+        });
     </script>
 </body>
 </html>
